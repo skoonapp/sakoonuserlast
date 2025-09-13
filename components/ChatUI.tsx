@@ -67,13 +67,13 @@ const ChatUI: React.FC<ChatUIProps> = ({ session, user, onLeave }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const typingTimeoutRef = useRef<number | null>(null);
   const associatedPlanIdRef = useRef(session.associatedPlanId);
+  const mainRef = useRef<HTMLElement>(null);
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [status, setStatus] = useState<ConnectionStatus>('connecting');
   const [isListenerTyping, setIsListenerTyping] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const [sentMessagesCount, setSentMessagesCount] = useState(0);
 
   const addSystemMessage = useCallback((text: string) => {
@@ -99,11 +99,18 @@ const ChatUI: React.FC<ChatUIProps> = ({ session, user, onLeave }) => {
     return () => window.removeEventListener('popstate', handleBackButton);
   }, [handleLeave]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const scrollToBottom = useCallback(() => {
+    if (mainRef.current) {
+        mainRef.current.scrollTo({
+            top: mainRef.current.scrollHeight,
+            behavior: 'smooth'
+        });
+    }
+  }, []);
    
-  useEffect(scrollToBottom, [messages]);
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, scrollToBottom]);
     
   useEffect(() => {
       if (textareaRef.current) {
@@ -268,7 +275,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ session, user, onLeave }) => {
         <button onClick={() => handleLeave(true)} className="text-sm bg-red-100 text-red-700 font-semibold px-3 py-1.5 rounded-md hover:bg-red-200 transition-colors disabled:opacity-50 dark:bg-red-900/50 dark:text-red-300 dark:hover:bg-red-900" aria-label="End Chat" disabled={status === 'ended'}>End Chat</button>
       </header>
 
-      <main className="flex-grow overflow-y-auto p-4 bg-transparent">
+      <main ref={mainRef} className="flex-grow overflow-y-auto p-4 bg-transparent">
         <div className="flex flex-col gap-1">
           {messages.map((msg, index) => {
             const prevMsg = messages[index - 1];
@@ -292,7 +299,6 @@ const ChatUI: React.FC<ChatUIProps> = ({ session, user, onLeave }) => {
               </Fragment>
             );
           })}
-          <div ref={messagesEndRef} />
         </div>
       </main>
 
