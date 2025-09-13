@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import type { User, Listener, CallSession, ChatSession, ActiveView, Plan } from '../types';
 import { auth, db, functions, messaging } from '../utils/firebase';
@@ -140,13 +141,8 @@ const AppShell: React.FC<AppShellProps> = ({ user }) => {
                 const permission = await Notification.requestPermission();
                 if (permission === 'granted') {
                     const currentToken = await messaging.getToken();
-                    if (currentToken) {
-                        const userRef = db.collection('users').doc(user.uid);
-                        const userDoc = await userRef.get();
-                        const existingToken = userDoc.data()?.fcmToken;
-                        if (existingToken !== currentToken) {
-                            await userRef.update({ fcmToken: currentToken });
-                        }
+                    if (currentToken && user.fcmToken !== currentToken) {
+                        await db.collection('users').doc(user.uid).update({ fcmToken: currentToken });
                     }
                 }
             } catch (err) {
@@ -154,7 +150,7 @@ const AppShell: React.FC<AppShellProps> = ({ user }) => {
             }
         };
 
-        const timer = setTimeout(() => setupNotifications(), 3000);
+        const timer = setTimeout(setupNotifications, 3000);
 
         const unsubscribeOnMessage = messaging.onMessage((payload) => {
             if (payload.notification) {
@@ -411,7 +407,7 @@ const AppShell: React.FC<AppShellProps> = ({ user }) => {
                             <h3 className="font-bold text-slate-800 dark:text-slate-100">{foregroundNotification.title}</h3>
                             <p className="font-normal text-sm text-slate-600 dark:text-slate-300">{foregroundNotification.body}</p>
                         </div>
-                         <button onClick={() => setForegroundNotification(null)} className="absolute top-2 right-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" aria-label="Close notification"><CloseIcon className="w-5 h-5" /></button>
+                         <button onClick={(e) => { e.stopPropagation(); setForegroundNotification(null); }} className="absolute top-2 right-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" aria-label="Close notification"><CloseIcon className="w-5 h-5" /></button>
                     </div>
                 </div>
             )}
