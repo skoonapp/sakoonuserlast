@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import type { User, Listener, CallSession, ChatSession, ActiveView, Plan } from '../types';
 import { auth, db, functions, messaging } from '../utils/firebase';
@@ -69,7 +70,7 @@ const AppShell: React.FC<AppShellProps> = ({ user }) => {
     
     // --- WhatsApp-like Navigation State ---
     const views: ActiveView[] = ['home', 'calls', 'chats', 'profile'];
-    const [activeIndex, setActiveIndex] = useState(0);
+    const [activeIndex, setActiveIndex] = useState(1);
     const [touchStartX, setTouchStartX] = useState(0);
     const [touchEndX, setTouchEndX] = useState(0);
     const swipeThreshold = 50; // Min pixels to trigger a swipe
@@ -112,13 +113,23 @@ const AppShell: React.FC<AppShellProps> = ({ user }) => {
     
     // --- PWA Back Button Handling ---
     useEffect(() => {
-        const handlePopState = () => {
-            setActiveIndex(0);
-        };
+        // This effect runs once on mount to set up the initial history stack.
+        // We start on "calls" (index 1), but want the back button to go to "home" (index 0).
+        // 1. Replace the initial history entry with the "home" state.
         window.history.replaceState({ activeIndex: 0 }, '');
+        // 2. Push the "calls" state on top, making it the current page.
+        window.history.pushState({ activeIndex: 1 }, '');
+
+        const handlePopState = (event: PopStateEvent) => {
+            // When the user presses back, popstate fires. The new state is from the history stack.
+            // We set the view to match this state. Default to 'home' (0) if state is missing.
+            const newIndex = event.state?.activeIndex ?? 0;
+            setActiveIndex(newIndex);
+        };
+
         window.addEventListener('popstate', handlePopState);
         return () => window.removeEventListener('popstate', handlePopState);
-    }, []);
+    }, []); // Empty dependency array ensures this runs only once on mount.
 
     // --- Firebase Cloud Messaging Setup ---
     useEffect(() => {
