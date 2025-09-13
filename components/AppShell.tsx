@@ -434,7 +434,7 @@ const AppShell: React.FC<AppShellProps> = ({ user }) => {
                                 className="w-full h-full flex-shrink-0"
                                 aria-hidden={activeIndex !== index}
                             >
-                                <div className="w-full h-full overflow-y-auto">
+                                <div className="w-full h-full overflow-y-auto no-scrollbar">
                                     {renderViewByIndex(index)}
                                 </div>
                             </div>
