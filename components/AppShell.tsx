@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, lazy, Suspense, useRef } from 'react';
 import type { User, Listener, CallSession, ChatSession, ActiveView, Plan } from '../types';
 import { auth, db, functions, messaging } from '../utils/firebase';
 import { useWallet } from '../hooks/useWallet';
@@ -68,8 +68,12 @@ const AppShell: React.FC<AppShellProps> = ({ user }) => {
     const [activeCallSession, setActiveCallSession] = useState<CallSession | null>(null);
     const [activeChatSession, setActiveChatSession] = useState<ChatSession | null>(null);
     
-    // --- Navigation State ---
+    // --- Navigation & Swipe State ---
     const [activeIndex, setActiveIndex] = useState(1);
+    const [touchStartX, setTouchStartX] = useState<number | null>(null);
+    const [touchDeltaX, setTouchDeltaX] = useState(0);
+    const viewsContainerRef = useRef<HTMLDivElement>(null);
+
 
     // --- Effects ---
     
@@ -317,6 +321,49 @@ const AppShell: React.FC<AppShellProps> = ({ user }) => {
         setPaymentDescription('');
         setTimeout(() => setFeedback(null), 5000);
     }, [paymentDescription]);
+    
+    // --- Swipe Handlers ---
+    const handleTouchStart = useCallback((e: React.TouchEvent) => {
+        if (activeCallSession || activeChatSession || showAICompanion || showPolicy || showRechargeModal || paymentSessionId) {
+            return;
+        }
+        setTouchStartX(e.targetTouches[0].clientX);
+        if (viewsContainerRef.current) {
+            viewsContainerRef.current.style.transition = 'none';
+        }
+    }, [activeCallSession, activeChatSession, showAICompanion, showPolicy, showRechargeModal, paymentSessionId]);
+
+    const handleTouchMove = useCallback((e: React.TouchEvent) => {
+        if (touchStartX === null) return;
+        const currentX = e.targetTouches[0].clientX;
+        const delta = currentX - touchStartX;
+
+        if ((activeIndex === 0 && delta > 0) || (activeIndex === views.length - 1 && delta < 0)) {
+            setTouchDeltaX(delta / 4); // Resistance at edges
+            return;
+        }
+        setTouchDeltaX(delta);
+    }, [touchStartX, activeIndex]);
+
+    const handleTouchEnd = useCallback(() => {
+        if (touchStartX === null) return;
+        
+        if (viewsContainerRef.current) {
+            viewsContainerRef.current.style.transition = 'transform 0.3s ease-in-out';
+        }
+
+        const swipeThreshold = 50; // pixels to trigger navigation
+
+        if (touchDeltaX > swipeThreshold && activeIndex > 0) {
+            navigateTo(activeIndex - 1); // Swipe right
+        } else if (touchDeltaX < -swipeThreshold && activeIndex < views.length - 1) {
+            navigateTo(activeIndex + 1); // Swipe left
+        }
+        
+        setTouchStartX(null);
+        setTouchDeltaX(0);
+    }, [touchStartX, touchDeltaX, activeIndex, navigateTo]);
+
 
     const renderViewByIndex = useCallback((index: number) => {
         switch (index) {
@@ -367,26 +414,32 @@ const AppShell: React.FC<AppShellProps> = ({ user }) => {
                 </div>
             )}
 
-            <main className="relative flex-grow overflow-hidden pt-16 pb-16">
+            <main 
+                className="relative flex-grow overflow-hidden pt-16 pb-16"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+            >
                 <Suspense fallback={<ViewLoader />}>
-                    {views.map((viewName, index) => {
-                        const isActive = activeIndex === index;
-                        const positionClass = isActive
-                            ? 'translate-x-0'
-                            : index < activeIndex
-                            ? '-translate-x-full'
-                            : 'translate-x-full';
-                        
-                        return (
+                     <div
+                        ref={viewsContainerRef}
+                        className="flex h-full transition-transform duration-300 ease-in-out"
+                        style={{ 
+                            transform: `translateX(calc(-${activeIndex * 100}% + ${touchDeltaX}px))`
+                        }}
+                    >
+                        {views.map((viewName, index) => (
                             <div 
                                 key={viewName} 
-                                className={`absolute top-0 left-0 w-full h-full transition-transform duration-300 ease-in-out ${positionClass} ${!isActive ? 'overflow-hidden' : 'overflow-y-auto'}`}
-                                aria-hidden={!isActive}
+                                className="w-full h-full flex-shrink-0"
+                                aria-hidden={activeIndex !== index}
                             >
-                                {renderViewByIndex(index)}
+                                <div className="w-full h-full overflow-y-auto">
+                                    {renderViewByIndex(index)}
+                                </div>
                             </div>
-                        );
-                    })}
+                        ))}
+                    </div>
                 </Suspense>
             </main>
             
