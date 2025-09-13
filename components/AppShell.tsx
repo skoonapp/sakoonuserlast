@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import type { User, Listener, CallSession, ChatSession, ActiveView, Plan } from '../types';
 import { auth, db, functions, messaging } from '../utils/firebase';
@@ -45,6 +42,8 @@ interface AppShellProps {
     user: User;
 }
 
+const views: ActiveView[] = ['home', 'calls', 'chats', 'profile'];
+
 const AppShell: React.FC<AppShellProps> = ({ user }) => {
     const wallet = useWallet(user);
 
@@ -69,16 +68,11 @@ const AppShell: React.FC<AppShellProps> = ({ user }) => {
     const [activeCallSession, setActiveCallSession] = useState<CallSession | null>(null);
     const [activeChatSession, setActiveChatSession] = useState<ChatSession | null>(null);
     
-    // --- WhatsApp-like Navigation State ---
-    const views: ActiveView[] = ['home', 'calls', 'chats', 'profile'];
+    // --- Navigation State ---
     const [activeIndex, setActiveIndex] = useState(1);
-    const [touchStartX, setTouchStartX] = useState(0);
-    const [touchEndX, setTouchEndX] = useState(0);
-    const swipeThreshold = 50; // Min pixels to trigger a swipe
 
     // --- Effects ---
     
-    // PWA Install prompt listener
     useEffect(() => {
         const handler = (e: Event) => {
             e.preventDefault();
@@ -88,7 +82,6 @@ const AppShell: React.FC<AppShellProps> = ({ user }) => {
         return () => window.removeEventListener('beforeinstallprompt', handler);
     }, []);
 
-    // Show/hide PWA install banner
     useEffect(() => {
         const expiryString = localStorage.getItem('pwaInstallDismissedExpiry');
         if (expiryString && new Date().getTime() > Number(expiryString)) {
@@ -99,7 +92,6 @@ const AppShell: React.FC<AppShellProps> = ({ user }) => {
         setShowInstallBanner(!!deferredInstallPrompt && !isDismissed);
     }, [deferredInstallPrompt]);
     
-    // Dark Mode management
     useEffect(() => {
         const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
         const savedTheme = localStorage.getItem('theme');
@@ -112,46 +104,38 @@ const AppShell: React.FC<AppShellProps> = ({ user }) => {
         }
     }, []);
     
-    // --- PWA Back Button Handling ---
     useEffect(() => {
-        // This effect runs once on mount to set up the initial history stack.
-        // We start on "calls" (index 1), but want the back button to go to "home" (index 0).
-        // 1. Replace the initial history entry with the "home" state.
         window.history.replaceState({ activeIndex: 0 }, '');
-        // 2. Push the "calls" state on top, making it the current page.
         window.history.pushState({ activeIndex: 1 }, '');
-
         const handlePopState = (event: PopStateEvent) => {
-            // When the user presses back, popstate fires. The new state is from the history stack.
-            // We set the view to match this state. Default to 'home' (0) if state is missing.
             const newIndex = event.state?.activeIndex ?? 0;
             setActiveIndex(newIndex);
         };
-
         window.addEventListener('popstate', handlePopState);
         return () => window.removeEventListener('popstate', handlePopState);
-    }, []); // Empty dependency array ensures this runs only once on mount.
+    }, []);
 
-    // --- Firebase Cloud Messaging Setup ---
     useEffect(() => {
         if (!user || !messaging) return;
-
         const setupNotifications = async () => {
             try {
-                const permission = await Notification.requestPermission();
-                if (permission === 'granted') {
+                if (Notification.permission === 'granted') {
                     const currentToken = await messaging.getToken();
                     if (currentToken && user.fcmToken !== currentToken) {
                         await db.collection('users').doc(user.uid).update({ fcmToken: currentToken });
+                    }
+                } else if (Notification.permission !== 'denied') {
+                    const permission = await Notification.requestPermission();
+                    if (permission === 'granted') {
+                       const currentToken = await messaging.getToken();
+                       await db.collection('users').doc(user.uid).update({ fcmToken: currentToken });
                     }
                 }
             } catch (err) {
                 console.error('An error occurred while setting up notifications.', err);
             }
         };
-
-        const timer = setTimeout(setupNotifications, 3000);
-
+        const timer = setTimeout(setupNotifications, 5000);
         const unsubscribeOnMessage = messaging.onMessage((payload) => {
             if (payload.notification) {
                 setForegroundNotification({
@@ -161,14 +145,12 @@ const AppShell: React.FC<AppShellProps> = ({ user }) => {
                 setTimeout(() => setForegroundNotification(null), 6000);
             }
         });
-
         return () => {
             clearTimeout(timer);
             unsubscribeOnMessage();
         };
     }, [user]);
 
-    // Proactively request microphone permission
     useEffect(() => {
         const requestMicrophonePermission = async () => {
             if (user && !sessionStorage.getItem('micPermissionRequested')) {
@@ -186,7 +168,6 @@ const AppShell: React.FC<AppShellProps> = ({ user }) => {
                 }
             }
         };
-
         const timer = setTimeout(requestMicrophonePermission, 2500);
         return () => clearTimeout(timer);
     }, [user]);
@@ -217,38 +198,15 @@ const AppShell: React.FC<AppShellProps> = ({ user }) => {
         }
         setActiveIndex(newIndex);
     }, [activeIndex]);
-
-    // Swipe Navigation Handlers
-    const handleTouchStart = (e: React.TouchEvent) => {
-        setTouchEndX(0);
-        setTouchStartX(e.targetTouches[0].clientX);
-    };
-
-    const handleTouchMove = (e: React.TouchEvent) => {
-        setTouchEndX(e.targetTouches[0].clientX);
-    };
-
-    const handleTouchEnd = () => {
-        if (!touchStartX || !touchEndX) return;
-        const deltaX = touchStartX - touchEndX;
-
-        if (deltaX > swipeThreshold) { // Swiped left
-            navigateTo((activeIndex + 1) % views.length);
-        } else if (deltaX < -swipeThreshold) { // Swiped right
-            navigateTo((activeIndex - 1 + views.length) % views.length);
-        }
-        setTouchStartX(0);
-        setTouchEndX(0);
-    };
     
-    const handleInstallDismiss = () => {
+    const handleInstallDismiss = useCallback(() => {
         const expiry = new Date().getTime() + 7 * 24 * 60 * 60 * 1000;
         localStorage.setItem('pwaInstallDismissed', 'true');
         localStorage.setItem('pwaInstallDismissedExpiry', String(expiry));
         setShowInstallBanner(false);
-    };
+    }, []);
 
-    const toggleDarkMode = () => {
+    const toggleDarkMode = useCallback(() => {
         setIsDarkMode(prev => {
             const newIsDark = !prev;
             if (newIsDark) {
@@ -260,7 +218,7 @@ const AppShell: React.FC<AppShellProps> = ({ user }) => {
             }
             return newIsDark;
         });
-    };
+    }, []);
     
     const handleLogout = useCallback(() => auth.signOut(), []);
     
@@ -302,7 +260,6 @@ const AppShell: React.FC<AppShellProps> = ({ user }) => {
                     });
                 } catch (error) {
                     console.error("Error finalizing call session:", error);
-                    alert("There was an issue processing your call usage. Please check your balance.");
                 }
             }
         }
@@ -320,14 +277,13 @@ const AppShell: React.FC<AppShellProps> = ({ user }) => {
                     });
                 } catch(error) {
                     console.error("Error finalizing chat session:", error);
-                    alert("There was an issue processing your chat usage. Please check your balance.");
                 }
             }
         }
         setActiveChatSession(null);
     }, [user, activeChatSession]);
 
-    const handlePurchase = async (plan: Plan | { tokens: number; price: number }) => {
+    const handlePurchase = useCallback(async (plan: Plan | { tokens: number; price: number }) => {
         const isTokenPlan = 'tokens' in plan;
         const planKey = isTokenPlan ? `mt_${plan.tokens}` : `${plan.type}_${plan.name}`;
         
@@ -349,9 +305,9 @@ const AppShell: React.FC<AppShellProps> = ({ user }) => {
         } finally {
             setLoadingPlan(null);
         }
-    };
+    }, []);
     
-    const handleModalClose = (status: 'success' | 'failure' | 'closed') => {
+    const handleModalClose = useCallback((status: 'success' | 'failure' | 'closed') => {
         if (status === 'success') {
             setFeedback({ type: 'success', message: `Payment for ${paymentDescription} is processing! Your balance will update shortly.` });
         } else if (status === 'failure') {
@@ -360,11 +316,10 @@ const AppShell: React.FC<AppShellProps> = ({ user }) => {
         setPaymentSessionId(null);
         setPaymentDescription('');
         setTimeout(() => setFeedback(null), 5000);
-    };
+    }, [paymentDescription]);
 
-    // --- Render Logic ---
-    const renderActiveView = () => {
-        switch (activeIndex) {
+    const renderViewByIndex = useCallback((index: number) => {
+        switch (index) {
             case 0: return <HomeView currentUser={user} wallet={wallet} onPurchase={handlePurchase} loadingPlan={loadingPlan} />;
             case 1: return <CallsView onStartSession={handleStartSession} currentUser={user} />;
             case 2: return <ChatsView onStartSession={handleStartSession} currentUser={user} />;
@@ -379,9 +334,9 @@ const AppShell: React.FC<AppShellProps> = ({ user }) => {
                             isDarkMode={isDarkMode}
                             toggleDarkMode={toggleDarkMode}
                         />;
-            default: return <HomeView currentUser={user} wallet={wallet} onPurchase={handlePurchase} loadingPlan={loadingPlan} />;
+            default: return null;
         }
-    };
+    }, [user, wallet, loadingPlan, handlePurchase, handleStartSession, deferredInstallPrompt, handleInstallClick, handleLogout, isDarkMode, toggleDarkMode]);
 
     if (wallet.loading) return <SplashScreen />;
     if (activeCallSession) return <CallUI session={activeCallSession} user={user} onLeave={handleCallSessionEnd} />;
@@ -412,16 +367,26 @@ const AppShell: React.FC<AppShellProps> = ({ user }) => {
                 </div>
             )}
 
-            <main
-                className="flex-grow overflow-hidden pt-16 pb-16"
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
-            >
+            <main className="relative flex-grow overflow-hidden pt-16 pb-16">
                 <Suspense fallback={<ViewLoader />}>
-                    <div className="h-full overflow-y-auto">
-                        {renderActiveView()}
-                    </div>
+                    {views.map((viewName, index) => {
+                        const isActive = activeIndex === index;
+                        const positionClass = isActive
+                            ? 'translate-x-0'
+                            : index < activeIndex
+                            ? '-translate-x-full'
+                            : 'translate-x-full';
+                        
+                        return (
+                            <div 
+                                key={viewName} 
+                                className={`absolute top-0 left-0 w-full h-full transition-transform duration-300 ease-in-out ${positionClass} ${!isActive ? 'overflow-hidden' : 'overflow-y-auto'}`}
+                                aria-hidden={!isActive}
+                            >
+                                {renderViewByIndex(index)}
+                            </div>
+                        );
+                    })}
                 </Suspense>
             </main>
             

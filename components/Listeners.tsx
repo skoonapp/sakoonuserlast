@@ -189,4 +189,4 @@ const PlansView: React.FC<PlansViewProps> = ({ currentUser, wallet, onPurchase, 
   );
 };
 
-export default PlansView;
+export default React.memo(PlansView);
