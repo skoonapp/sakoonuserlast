@@ -93,8 +93,8 @@ const PlanCard: React.FC<PlanCardProps> = ({ tierName, callPlan, chatPlan, isPop
                 </div>
                 <div className="mb-2">
                     <p className="text-xl">
-                        <span className="font-extrabold text-slate-900 dark:text-slate-100">{callPlan.duration.split(' ')[0]}</span>
-                        <span className="font-semibold text-slate-600 dark:text-slate-400 ml-1 text-sm">{callPlan.duration.split(' ')[1]}</span>
+                        <span className="font-extrabold text-slate-900 dark:text-slate-100">{callPlan.minutes}</span>
+                        <span className="font-semibold text-slate-600 dark:text-slate-400 ml-1 text-sm">मिनट</span>
                     </p>
                 </div>
             </div>

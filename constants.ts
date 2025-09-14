@@ -42,7 +42,7 @@ export const CHAT_PLANS: Plan[] = [
     { type: "chat", name: "Gold Chat", duration: "15 मिनट", messages: 21, price: 50, discount: 5 },
     { type: "chat", name: "Platinum Chat", duration: "30 मिनट", messages: 40, price: 90, discount: 10 },
     { type: "chat", name: "Diamond Chat", duration: "45 मिनट", messages: 60, price: 135, discount: 10 },
-    { type: "chat", name: "Elite Chat", duration: "60 मिनट", messages: 75, price: 170, discount: 9 },
+    { type: "chat", name: "Elite Chat", duration: "60 मिनट", messages: 75, price: 170, discount: 10 },
 ];
 
 
