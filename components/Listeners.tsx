@@ -93,11 +93,6 @@ const PlansView: React.FC<PlansViewProps> = ({ currentUser, wallet, onPurchase, 
 
                         return (
                           <div key={option.tokens} className={`relative ${popularContainerStyles} p-3 flex flex-col items-center justify-between transition-all hover:shadow-lg hover:-translate-y-1 min-h-[145px]`}>
-                              {option.discount && (
-                                <div className="absolute top-2 right-2 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md z-20">
-                                    बचत {option.discount}%
-                                </div>
-                              )}
                               {isPopular && (
                                   <div className="absolute top-0 -translate-y-1/2 bg-gradient-to-r from-orange-400 to-amber-500 text-white text-sm font-bold px-4 py-1 rounded-full shadow-lg animate-pulse z-10">
                                       लोकप्रिय
@@ -109,6 +104,11 @@ const PlansView: React.FC<PlansViewProps> = ({ currentUser, wallet, onPurchase, 
                                       <span className="text-xl font-extrabold text-slate-800 dark:text-slate-100">{option.tokens}</span>
                                   </div>
                                   <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">Money Token</p>
+                                  {option.discount && (
+                                    <div className="mt-1 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md inline-block">
+                                        बचत {option.discount}%
+                                    </div>
+                                  )}
                               </div>
                               <button
                                   onClick={() => !loadingPlan && onPurchase({ tokens: option.tokens, price: option.price })}
