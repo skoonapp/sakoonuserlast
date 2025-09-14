@@ -1,4 +1,5 @@
 
+
 export type ActiveView = 'home' | 'calls' | 'chats' | 'profile';
 
 export interface ActivePlan {
@@ -48,6 +49,7 @@ export interface Plan {
   name?: string;
   minutes?: number;
   messages?: number;
+  discount?: number;
 }
 
 

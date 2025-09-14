@@ -46,18 +46,18 @@ const PadlockIcon: React.FC<{ className?: string }> = ({ className }) => (
 const PlansView: React.FC<PlansViewProps> = ({ currentUser, wallet, onPurchase, loadingPlan }) => {
   const tokenOptions = [
     { tokens: 10, price: 50 },
-    { tokens: 20, price: 99 },
-    { tokens: 50, price: 230, isPopular: true },
-    { tokens: 100, price: 450 },
-    { tokens: 250, price: 1125 },
-    { tokens: 500, price: 2250 },
+    { tokens: 20, price: 99, discount: 1 },
+    { tokens: 50, price: 230, discount: 8 },
+    { tokens: 100, price: 450, isPopular: true, discount: 10 },
+    { tokens: 250, price: 1125, discount: 10 },
+    { tokens: 500, price: 2250, discount: 10 },
   ];
 
   const planPairs = CALL_PLANS.map((callPlan, index) => ({
     callPlan,
     chatPlan: CHAT_PLANS[index],
     tierName: callPlan.tierName || '',
-    isPopular: callPlan.tierName === 'Gold Pack' || callPlan.tierName === 'Platinum Pack'
+    isPopular: callPlan.tierName === 'Platinum Pack'
   }));
 
   return (
@@ -93,6 +93,11 @@ const PlansView: React.FC<PlansViewProps> = ({ currentUser, wallet, onPurchase, 
 
                         return (
                           <div key={option.tokens} className={`relative ${popularContainerStyles} p-3 flex flex-col items-center justify-between transition-all hover:shadow-lg hover:-translate-y-1 min-h-[145px]`}>
+                              {option.discount && (
+                                <div className="absolute top-2 right-2 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md z-20">
+                                    बचत {option.discount}%
+                                </div>
+                              )}
                               {isPopular && (
                                   <div className="absolute top-0 -translate-y-1/2 bg-gradient-to-r from-orange-400 to-amber-500 text-white text-sm font-bold px-4 py-1 rounded-full shadow-lg animate-pulse z-10">
                                       लोकप्रिय

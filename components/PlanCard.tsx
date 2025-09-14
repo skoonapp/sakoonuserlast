@@ -63,9 +63,15 @@ const PlanCard: React.FC<PlanCardProps> = ({ tierName, callPlan, chatPlan, isPop
   const isLoadingCallPlan = loadingPlan === callPlanKey;
   const isLoadingChatPlan = loadingPlan === chatPlanKey;
 
+  const maxDiscount = Math.max(callPlan.discount || 0, chatPlan.discount || 0);
 
   return (
     <div className={`relative ${popularContainerStyles} p-3 flex flex-col text-center items-center hover:-translate-y-1 transition-all duration-300 min-h-[160px]`}>
+      {maxDiscount > 0 && (
+        <div className="absolute top-2 right-2 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md z-20">
+            बचत {maxDiscount}%
+        </div>
+      )}
       {isPopular && (
         <div className="absolute top-0 -translate-y-1/2 bg-gradient-to-r from-orange-400 to-amber-500 text-white text-sm font-bold px-4 py-1 rounded-full shadow-lg animate-pulse z-10">
           लोकप्रिय
