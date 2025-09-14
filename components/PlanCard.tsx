@@ -70,24 +70,31 @@ const PlanCard: React.FC<PlanCardProps> = ({ tierName, callPlan, chatPlan, isPop
           लोकप्रिय
         </div>
       )}
-      <div className="mb-3 w-full flex justify-center items-center gap-2">
-        {/* Calling Plan Discount Tag - LEFT */}
-        {callPlan.discount && (
-          <div className="bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md">
-              बचत {callPlan.discount}%
-          </div>
-        )}
-
-        {isPopular && <StarIcon className="w-5 h-5 text-amber-400" />}
-        <p className={`text-lg font-bold ${tierStyles}`}>{tierName}</p>
-        {isPopular && <StarIcon className="w-5 h-5 text-amber-400" />}
-        
-        {/* Chat Plan Discount Tag - RIGHT */}
-        {chatPlan.discount && (
-          <div className="bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md">
-              बचत {chatPlan.discount}%
-          </div>
-        )}
+      <div className="mb-3 w-full flex justify-between items-center">
+        {/* Left side: Calling Discount */}
+        <div className="flex-1 text-left pl-1">
+            {callPlan.discount && (
+              <div className="inline-block bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md">
+                  बचत {callPlan.discount}%
+              </div>
+            )}
+        </div>
+      
+        {/* Center: Title and Popular stars */}
+        <div className="flex items-center gap-1 shrink-0">
+            {isPopular && <StarIcon className="w-5 h-5 text-amber-400" />}
+            <p className={`text-lg font-bold ${tierStyles}`}>{tierName}</p>
+            {isPopular && <StarIcon className="w-5 h-5 text-amber-400" />}
+        </div>
+    
+        {/* Right side: Chat Discount */}
+        <div className="flex-1 text-right pr-1">
+            {chatPlan.discount && (
+              <div className="inline-block bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md">
+                  बचत {chatPlan.discount}%
+              </div>
+            )}
+        </div>
       </div>
       
       <div className="w-full grid grid-cols-2 gap-3 divide-x divide-slate-200 dark:divide-slate-800 flex-grow">
