@@ -73,7 +73,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ tierName, callPlan, chatPlan, isPop
       <div className="mb-3 w-full flex justify-between items-center">
         {/* Left side: Calling Discount */}
         <div className="flex-1 text-left pl-1">
-            {callPlan.discount && (
+            {callPlan.discount && !['Platinum Pack', 'Diamond Pack', 'Elite Pack'].includes(tierName) && (
               <div className="inline-block bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md">
                   बचत {callPlan.discount}%
               </div>
