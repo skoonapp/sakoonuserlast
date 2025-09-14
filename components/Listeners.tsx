@@ -83,7 +83,7 @@ const PlansView: React.FC<PlansViewProps> = ({ currentUser, wallet, onPurchase, 
               </div>
               
               <div className="max-w-3xl mx-auto">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 border-2 border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden divide-y-2 sm:divide-x-0 sm:divide-y-2 divide-slate-200 dark:divide-slate-800">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 border-2 border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden divide-y-2 sm:divide-y-0 sm:divide-x-2 divide-slate-200 dark:divide-slate-800">
                       {tokenOptions.map((option, index) => {
                         const isPopular = option.isPopular ?? false;
                         const popularContainerStyles = isPopular
