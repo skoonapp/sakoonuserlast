@@ -78,7 +78,12 @@ const PlanCard: React.FC<PlanCardProps> = ({ tierName, callPlan, chatPlan, isPop
       
       <div className="w-full grid grid-cols-2 gap-3 divide-x divide-slate-200 dark:divide-slate-800 flex-grow">
         {/* Call Option */}
-        <div className="flex flex-col items-center px-2">
+        <div className="relative flex flex-col items-center px-2">
+            {callPlan.discount && (
+                <div className="absolute top-0 left-0 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md z-10">
+                    बचत {callPlan.discount}%
+                </div>
+            )}
             <div className="flex-grow flex flex-col items-center text-center justify-center py-1">
                 <div className="flex items-center justify-center gap-1.5 mb-1.5">
                     <PhoneIcon className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
@@ -91,11 +96,6 @@ const PlanCard: React.FC<PlanCardProps> = ({ tierName, callPlan, chatPlan, isPop
                         <span className="font-extrabold text-slate-900 dark:text-slate-100">{callPlan.minutes}</span>
                         <span className="font-semibold text-slate-600 dark:text-slate-400 ml-1 text-sm">मिनट</span>
                     </p>
-                    {callPlan.discount && (
-                        <div className="mt-1 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md inline-block">
-                            बचत {callPlan.discount}%
-                        </div>
-                    )}
                 </div>
             </div>
              <button
@@ -111,7 +111,12 @@ const PlanCard: React.FC<PlanCardProps> = ({ tierName, callPlan, chatPlan, isPop
         </div>
 
         {/* Chat Option */}
-        <div className="flex flex-col items-center px-2">
+        <div className="relative flex flex-col items-center px-2">
+             {chatPlan.discount && (
+                <div className="absolute top-0 right-0 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md z-10">
+                    बचत {chatPlan.discount}%
+                </div>
+            )}
             <div className="flex-grow flex flex-col items-center text-center justify-center py-1">
                 <div className="flex items-center justify-center gap-1.5 mb-1.5">
                     <ChatIcon className="w-4 h-4 text-teal-600 dark:text-teal-400" />
@@ -124,11 +129,6 @@ const PlanCard: React.FC<PlanCardProps> = ({ tierName, callPlan, chatPlan, isPop
                         <span className="font-extrabold text-slate-900 dark:text-slate-100">{chatPlan.messages}</span>
                         <span className="font-semibold text-slate-600 dark:text-slate-400 ml-1 text-sm">मैसेज</span>
                     </p>
-                    {chatPlan.discount && (
-                        <div className="mt-1 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md inline-block">
-                            बचत {chatPlan.discount}%
-                        </div>
-                    )}
                 </div>
             </div>
             <button
