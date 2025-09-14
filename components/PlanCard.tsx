@@ -66,7 +66,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ tierName, callPlan, chatPlan, isPop
   const maxDiscount = Math.max(callPlan.discount || 0, chatPlan.discount || 0);
 
   return (
-    <div className={`relative ${popularContainerStyles} p-3 flex flex-col text-center items-center hover:-translate-y-1 transition-all duration-300`}>
+    <div className={`relative ${popularContainerStyles} p-3 flex flex-col text-center items-center hover:-translate-y-1 transition-all duration-300 min-h-[160px]`}>
       {maxDiscount > 0 && (
         <div className="absolute top-2 right-2 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md z-20">
             बचत {maxDiscount}%
@@ -85,13 +85,13 @@ const PlanCard: React.FC<PlanCardProps> = ({ tierName, callPlan, chatPlan, isPop
       
       <div className="w-full grid grid-cols-2 gap-3 divide-x divide-slate-200 dark:divide-slate-800 flex-grow">
         {/* Call Option */}
-        <div className="flex flex-col items-stretch text-left px-2 justify-between">
-            <div className="flex-grow">
-                <div className="flex items-center gap-1.5 mb-1.5">
+        <div className="flex flex-col items-center px-2">
+            <div className="flex-grow flex flex-col items-center text-center justify-center py-1">
+                <div className="flex items-center justify-center gap-1.5 mb-1.5">
                     <PhoneIcon className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
                     <h4 className="text-sm font-semibold text-cyan-800 dark:text-cyan-300">कॉलिंग</h4>
                 </div>
-                <div>
+                <div className="mb-2">
                     <p className="text-xl">
                         <span className="font-extrabold text-slate-900 dark:text-slate-100">{callPlan.duration.split(' ')[0]}</span>
                         <span className="font-semibold text-slate-600 dark:text-slate-400 ml-1 text-sm">{callPlan.duration.split(' ')[1]}</span>
@@ -100,7 +100,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ tierName, callPlan, chatPlan, isPop
             </div>
              <button
                 onClick={() => !loadingPlan && onPurchase(callPlan)}
-                className={`w-full mt-2 text-white font-bold py-2 text-base rounded-lg transition-colors shadow-md ${
+                className={`w-full mt-auto text-white font-bold py-2 text-base rounded-lg transition-colors shadow-md ${
                     isLoadingCallPlan
                     ? 'bg-amber-500 cursor-wait'
                     : `bg-cyan-600 hover:bg-cyan-700 dark:bg-cyan-500 dark:hover:bg-cyan-400 ${loadingPlan ? 'cursor-not-allowed' : ''}`
@@ -111,13 +111,13 @@ const PlanCard: React.FC<PlanCardProps> = ({ tierName, callPlan, chatPlan, isPop
         </div>
 
         {/* Chat Option */}
-        <div className="flex flex-col items-stretch text-left px-2 justify-between">
-            <div className="flex-grow">
-                <div className="flex items-center gap-1.5 mb-1.5">
+        <div className="flex flex-col items-center px-2">
+            <div className="flex-grow flex flex-col items-center text-center justify-center py-1">
+                <div className="flex items-center justify-center gap-1.5 mb-1.5">
                     <ChatIcon className="w-4 h-4 text-teal-600 dark:text-teal-400" />
                     <h4 className="text-sm font-semibold text-teal-800 dark:text-teal-300">चैट</h4>
                 </div>
-                 <div>
+                 <div className="mb-2">
                     <p className="text-xl">
                         <span className="font-extrabold text-slate-900 dark:text-slate-100">{chatPlan.messages}</span>
                         <span className="font-semibold text-slate-600 dark:text-slate-400 ml-1 text-sm">मैसेज</span>
@@ -126,7 +126,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ tierName, callPlan, chatPlan, isPop
             </div>
             <button
                 onClick={() => !loadingPlan && onPurchase(chatPlan)}
-                className={`w-full mt-2 text-white font-bold py-2 text-base rounded-lg transition-colors shadow-md ${
+                className={`w-full mt-auto text-white font-bold py-2 text-base rounded-lg transition-colors shadow-md ${
                     isLoadingChatPlan
                     ? 'bg-amber-500 cursor-wait'
                     : `bg-teal-500 hover:bg-teal-600 dark:bg-teal-600 dark:hover:bg-teal-500 ${loadingPlan ? 'cursor-not-allowed' : ''}`

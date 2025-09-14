@@ -83,7 +83,7 @@ const PlansView: React.FC<PlansViewProps> = ({ currentUser, wallet, onPurchase, 
               </div>
               
               <div className="max-w-3xl mx-auto">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 border-2 border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden divide-y-2 sm:divide-x-0 sm:divide-y-2 divide-slate-200 dark:divide-slate-800">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 border-2 border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden divide-x-2 divide-y-2 divide-slate-200 dark:divide-slate-800">
                       {tokenOptions.map((option, index) => {
                         const isPopular = option.isPopular ?? false;
                         const popularContainerStyles = isPopular
@@ -92,27 +92,27 @@ const PlansView: React.FC<PlansViewProps> = ({ currentUser, wallet, onPurchase, 
                         const isLoadingThisPlan = loadingPlan === `mt_${option.tokens}`;
 
                         return (
-                          <div key={option.tokens} className={`relative ${popularContainerStyles} p-4 flex flex-row items-center justify-between transition-all hover:shadow-lg hover:-translate-y-1`}>
+                          <div key={option.tokens} className={`relative ${popularContainerStyles} p-3 flex flex-col items-center justify-between transition-all hover:shadow-lg hover:-translate-y-1 min-h-[145px]`}>
                               {option.discount && (
                                 <div className="absolute top-2 right-2 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md z-20">
                                     बचत {option.discount}%
                                 </div>
                               )}
                               {isPopular && (
-                                  <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-400 to-amber-500 text-white text-sm font-bold px-4 py-1 rounded-full shadow-lg animate-pulse z-10">
+                                  <div className="absolute top-0 -translate-y-1/2 bg-gradient-to-r from-orange-400 to-amber-500 text-white text-sm font-bold px-4 py-1 rounded-full shadow-lg animate-pulse z-10">
                                       लोकप्रिय
                                   </div>
                               )}
-                              <div className="text-left">
-                                  <div className="flex items-center gap-2">
-                                      <MTCoinIcon className="w-7 h-7" idSuffix={String(index)} />
-                                      <span className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{option.tokens}</span>
+                              <div className="text-center">
+                                  <div className="flex justify-center items-center gap-2">
+                                      <MTCoinIcon className="w-5 h-5" idSuffix={String(index)} />
+                                      <span className="text-xl font-extrabold text-slate-800 dark:text-slate-100">{option.tokens}</span>
                                   </div>
-                                  <p className="text-sm font-semibold text-slate-600 dark:text-slate-400 mt-1">Money Token</p>
+                                  <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">Money Token</p>
                               </div>
                               <button
                                   onClick={() => !loadingPlan && onPurchase({ tokens: option.tokens, price: option.price })}
-                                  className={`shrink-0 text-white font-bold py-2.5 px-5 rounded-lg transition-colors shadow-md text-base ${
+                                  className={`w-full text-white font-bold py-2 px-3 rounded-lg transition-colors shadow-md text-base mt-3 ${
                                     isLoadingThisPlan
                                       ? 'bg-amber-500 cursor-wait'
                                       : `bg-indigo-600 hover:bg-indigo-700 ${loadingPlan ? 'cursor-not-allowed' : ''}`
