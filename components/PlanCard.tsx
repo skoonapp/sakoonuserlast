@@ -83,7 +83,6 @@ const PlanCard: React.FC<PlanCardProps> = ({ tierName, callPlan, chatPlan, isPop
                 <div className="flex items-center justify-center gap-1.5 mb-1.5">
                     <PhoneIcon className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
                     <h4 className="text-sm font-semibold text-cyan-800 dark:text-cyan-300">
-                        {callPlan.discount && `🏷️ `}
                         कॉलिंग
                     </h4>
                 </div>
@@ -92,9 +91,6 @@ const PlanCard: React.FC<PlanCardProps> = ({ tierName, callPlan, chatPlan, isPop
                         <span className="font-extrabold text-slate-900 dark:text-slate-100">{callPlan.minutes}</span>
                         <span className="font-semibold text-slate-600 dark:text-slate-400 ml-1 text-sm">मिनट</span>
                     </p>
-                     {callPlan.discount && (
-                      <p className="text-xs text-green-600 dark:text-green-400 font-bold">(Save {callPlan.discount}%)</p>
-                    )}
                 </div>
             </div>
              <button
@@ -116,7 +112,6 @@ const PlanCard: React.FC<PlanCardProps> = ({ tierName, callPlan, chatPlan, isPop
                     <ChatIcon className="w-4 h-4 text-teal-600 dark:text-teal-400" />
                     <h4 className="text-sm font-semibold text-teal-800 dark:text-teal-300">
                         चैट
-                        {chatPlan.discount && ` 🏷️`}
                     </h4>
                 </div>
                  <div className="mb-2">
@@ -124,9 +119,6 @@ const PlanCard: React.FC<PlanCardProps> = ({ tierName, callPlan, chatPlan, isPop
                         <span className="font-extrabold text-slate-900 dark:text-slate-100">{chatPlan.messages}</span>
                         <span className="font-semibold text-slate-600 dark:text-slate-400 ml-1 text-sm">मैसेज</span>
                     </p>
-                     {chatPlan.discount && (
-                      <p className="text-xs text-green-600 dark:text-green-400 font-bold">(Save {chatPlan.discount}%)</p>
-                    )}
                 </div>
             </div>
             <button
