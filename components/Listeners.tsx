@@ -92,7 +92,7 @@ const PlansView: React.FC<PlansViewProps> = ({ currentUser, wallet, onPurchase, 
                         const isLoadingThisPlan = loadingPlan === `mt_${option.tokens}`;
 
                         return (
-                          <div key={option.tokens} className={`relative ${popularContainerStyles} p-4 flex flex-row items-center justify-between transition-all hover:shadow-lg hover:-translate-y-1`}>
+                          <div key={option.tokens} className={`relative ${popularContainerStyles} p-4 flex flex-col text-center items-center justify-center gap-2 transition-all hover:shadow-lg hover:-translate-y-1`}>
                               {option.discount && (
                                 <div className="absolute top-2 right-2 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md z-20">
                                     बचत {option.discount}%
@@ -103,16 +103,16 @@ const PlansView: React.FC<PlansViewProps> = ({ currentUser, wallet, onPurchase, 
                                       लोकप्रिय
                                   </div>
                               )}
-                              <div className="text-left">
-                                  <div className="flex items-center gap-2">
-                                      <MTCoinIcon className="w-7 h-7" idSuffix={String(index)} />
-                                      <span className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{option.tokens}</span>
-                                  </div>
-                                  <p className="text-sm font-semibold text-slate-600 dark:text-slate-400 mt-1">Money Token</p>
+                              
+                              <div className="flex items-center justify-center gap-2">
+                                  <MTCoinIcon className="w-7 h-7" idSuffix={String(index)} />
+                                  <span className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">{option.tokens}</span>
                               </div>
+                              <p className="text-sm font-semibold text-slate-600 dark:text-slate-400 -mt-1">Money Token</p>
+                              
                               <button
                                   onClick={() => !loadingPlan && onPurchase({ tokens: option.tokens, price: option.price })}
-                                  className={`shrink-0 text-white font-bold py-2.5 px-5 rounded-lg transition-colors shadow-md text-base ${
+                                  className={`w-full mt-2 text-white font-bold py-2.5 px-5 rounded-lg transition-colors shadow-md text-base ${
                                     isLoadingThisPlan
                                       ? 'bg-amber-500 cursor-wait'
                                       : `bg-indigo-600 hover:bg-indigo-700 ${loadingPlan ? 'cursor-not-allowed' : ''}`
