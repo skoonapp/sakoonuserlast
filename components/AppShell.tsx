@@ -71,7 +71,9 @@ const AppShell: React.FC<AppShellProps> = ({ user }) => {
     // --- Navigation & Swipe State ---
     const [activeIndex, setActiveIndex] = useState(1);
     const [touchStartX, setTouchStartX] = useState<number | null>(null);
+    const [touchStartY, setTouchStartY] = useState<number | null>(null); // For vertical vs horizontal detection
     const [touchDeltaX, setTouchDeltaX] = useState(0);
+    const [isSwiping, setIsSwiping] = useState<boolean | null>(null); // null: undecided, true: horizontal, false: vertical
     const viewsContainerRef = useRef<HTMLDivElement>(null);
 
 
@@ -237,14 +239,23 @@ const AppShell: React.FC<AppShellProps> = ({ user }) => {
 
         if (dtPlan) {
             const session = { listener, plan: { duration: dtPlan.name || 'Plan', price: dtPlan.price || 0 }, associatedPlanId: dtPlan.id, isTokenSession: false };
-            if (type === 'call') setActiveCallSession({ ...session, type: 'call', sessionDurationSeconds: 3600 });
-            else setActiveChatSession({ ...session, type: 'chat', sessionDurationSeconds: 3 * 3600 });
+            if (type === 'call') {
+                const durationSeconds = (dtPlan.minutes || 0) * 60;
+                setActiveCallSession({ ...session, type: 'call', sessionDurationSeconds: durationSeconds });
+            } else { // type === 'chat'
+                setActiveChatSession({ ...session, type: 'chat', sessionDurationSeconds: 3 * 3600 });
+            }
         } else {
             const canUseTokens = (type === 'call' && (wallet.tokens || 0) >= 2) || (type === 'chat' && (wallet.tokens || 0) >= 0.5);
             if (canUseTokens) {
                 const session = { listener, plan: { duration: 'MT', price: 0 }, associatedPlanId: `mt_session_${Date.now()}`, isTokenSession: true };
-                if (type === 'call') setActiveCallSession({ ...session, type: 'call', sessionDurationSeconds: 3600 });
-                else setActiveChatSession({ ...session, type: 'chat', sessionDurationSeconds: 3 * 3600 });
+                if (type === 'call') {
+                    const maxMinutes = Math.floor((wallet.tokens || 0) / 2); // 2 MT per minute
+                    const durationSeconds = maxMinutes * 60;
+                    setActiveCallSession({ ...session, type: 'call', sessionDurationSeconds: durationSeconds });
+                } else { // type === 'chat'
+                    setActiveChatSession({ ...session, type: 'chat', sessionDurationSeconds: 3 * 3600 });
+                }
             } else {
                 setShowRechargeModal(true);
             }
@@ -328,41 +339,61 @@ const AppShell: React.FC<AppShellProps> = ({ user }) => {
             return;
         }
         setTouchStartX(e.targetTouches[0].clientX);
+        setTouchStartY(e.targetTouches[0].clientY);
+        setIsSwiping(null);
+        setTouchDeltaX(0);
         if (viewsContainerRef.current) {
             viewsContainerRef.current.style.transition = 'none';
         }
     }, [activeCallSession, activeChatSession, showAICompanion, showPolicy, showRechargeModal, paymentSessionId]);
 
     const handleTouchMove = useCallback((e: React.TouchEvent) => {
-        if (touchStartX === null) return;
-        const currentX = e.targetTouches[0].clientX;
-        const delta = currentX - touchStartX;
+        if (touchStartX === null || touchStartY === null) return;
 
-        if ((activeIndex === 0 && delta > 0) || (activeIndex === views.length - 1 && delta < 0)) {
-            setTouchDeltaX(delta / 4); // Resistance at edges
-            return;
+        const currentX = e.targetTouches[0].clientX;
+        const currentY = e.targetTouches[0].clientY;
+        const deltaX = currentX - touchStartX;
+        const deltaY = currentY - touchStartY;
+        
+        let currentIsSwiping = isSwiping;
+
+        if (currentIsSwiping === null) {
+            // Decide direction based on the first significant movement
+            if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+                currentIsSwiping = Math.abs(deltaX) > Math.abs(deltaY);
+                setIsSwiping(currentIsSwiping);
+            }
         }
-        setTouchDeltaX(delta);
-    }, [touchStartX, activeIndex]);
+        
+        if (currentIsSwiping === true) { // If it's a horizontal swipe
+            e.preventDefault();
+            if ((activeIndex === 0 && deltaX > 0) || (activeIndex === views.length - 1 && deltaX < 0)) {
+                setTouchDeltaX(deltaX / 4); // Resistance at edges
+            } else {
+                setTouchDeltaX(deltaX);
+            }
+        }
+    }, [touchStartX, touchStartY, activeIndex, isSwiping, views.length]);
 
     const handleTouchEnd = useCallback(() => {
-        if (touchStartX === null) return;
-        
         if (viewsContainerRef.current) {
             viewsContainerRef.current.style.transition = 'transform 0.3s ease-in-out';
         }
 
-        const swipeThreshold = 50; // pixels to trigger navigation
-
-        if (touchDeltaX > swipeThreshold && activeIndex > 0) {
-            navigateTo(activeIndex - 1); // Swipe right
-        } else if (touchDeltaX < -swipeThreshold && activeIndex < views.length - 1) {
-            navigateTo(activeIndex + 1); // Swipe left
+        if (isSwiping) { // Only process the end of a horizontal swipe
+            const swipeThreshold = 50;
+            if (touchDeltaX > swipeThreshold && activeIndex > 0) {
+                navigateTo(activeIndex - 1);
+            } else if (touchDeltaX < -swipeThreshold && activeIndex < views.length - 1) {
+                navigateTo(activeIndex + 1);
+            }
         }
         
         setTouchStartX(null);
+        setTouchStartY(null);
         setTouchDeltaX(0);
-    }, [touchStartX, touchDeltaX, activeIndex, navigateTo]);
+        setIsSwiping(null);
+    }, [isSwiping, touchDeltaX, activeIndex, navigateTo, views.length]);
 
 
     const renderViewByIndex = useCallback((index: number) => {
