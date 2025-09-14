@@ -71,9 +71,23 @@ const PlanCard: React.FC<PlanCardProps> = ({ tierName, callPlan, chatPlan, isPop
         </div>
       )}
       <div className="mb-3 w-full flex justify-center items-center gap-2">
+        {/* Calling Plan Discount Tag - LEFT */}
+        {callPlan.discount && (
+          <div className="bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md">
+              बचत {callPlan.discount}%
+          </div>
+        )}
+
         {isPopular && <StarIcon className="w-5 h-5 text-amber-400" />}
         <p className={`text-lg font-bold ${tierStyles}`}>{tierName}</p>
         {isPopular && <StarIcon className="w-5 h-5 text-amber-400" />}
+        
+        {/* Chat Plan Discount Tag - RIGHT */}
+        {chatPlan.discount && (
+          <div className="bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md">
+              बचत {chatPlan.discount}%
+          </div>
+        )}
       </div>
       
       <div className="w-full grid grid-cols-2 gap-3 divide-x divide-slate-200 dark:divide-slate-800 flex-grow">
@@ -81,11 +95,6 @@ const PlanCard: React.FC<PlanCardProps> = ({ tierName, callPlan, chatPlan, isPop
         <div className="flex flex-col items-center px-2">
             <div className="flex-grow flex flex-col items-center text-center justify-center py-1 w-full">
                 <div className="flex items-center justify-center gap-1.5 mb-1.5 h-6">
-                    {callPlan.discount && (
-                      <div className="bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md">
-                          बचत {callPlan.discount}%
-                      </div>
-                    )}
                     <PhoneIcon className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
                     <h4 className="text-sm font-semibold text-cyan-800 dark:text-cyan-300">
                         कॉलिंग
@@ -118,11 +127,6 @@ const PlanCard: React.FC<PlanCardProps> = ({ tierName, callPlan, chatPlan, isPop
                     <h4 className="text-sm font-semibold text-teal-800 dark:text-teal-300">
                         चैट
                     </h4>
-                    {chatPlan.discount && (
-                      <div className="bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md">
-                          बचत {chatPlan.discount}%
-                      </div>
-                    )}
                 </div>
                  <div className="mb-2">
                     <p className="text-xl">
