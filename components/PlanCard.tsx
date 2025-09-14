@@ -87,16 +87,14 @@ const PlanCard: React.FC<PlanCardProps> = ({ tierName, callPlan, chatPlan, isPop
                         कॉलिंग
                     </h4>
                 </div>
-                <div className="mb-2 flex flex-col items-center justify-center min-h-[40px]">
-                    <div className="flex items-baseline justify-center gap-1 flex-wrap">
-                        <p className="text-xl">
-                            <span className="font-extrabold text-slate-900 dark:text-slate-100">{callPlan.minutes}</span>
-                            <span className="font-semibold text-slate-600 dark:text-slate-400 ml-1 text-sm">मिनट</span>
-                        </p>
-                        {callPlan.discount && (
-                            <p className="text-xs text-green-600 dark:text-green-400 font-bold">(Save {callPlan.discount}%) 🏷️</p>
-                        )}
-                    </div>
+                <div className="mb-2">
+                    <p className="text-xl">
+                        <span className="font-extrabold text-slate-900 dark:text-slate-100">{callPlan.minutes}</span>
+                        <span className="font-semibold text-slate-600 dark:text-slate-400 ml-1 text-sm">मिनट</span>
+                    </p>
+                     {callPlan.discount && (
+                      <p className="text-xs text-green-600 dark:text-green-400 font-bold">(Save {callPlan.discount}%)</p>
+                    )}
                 </div>
             </div>
              <button
@@ -121,16 +119,14 @@ const PlanCard: React.FC<PlanCardProps> = ({ tierName, callPlan, chatPlan, isPop
                         {chatPlan.discount && ` 🏷️`}
                     </h4>
                 </div>
-                 <div className="mb-2 flex flex-col items-center justify-center min-h-[40px]">
-                    <div className="flex items-baseline justify-center gap-1 flex-wrap">
-                        <p className="text-xl">
-                            <span className="font-extrabold text-slate-900 dark:text-slate-100">{chatPlan.messages}</span>
-                            <span className="font-semibold text-slate-600 dark:text-slate-400 ml-1 text-sm">मैसेज</span>
-                        </p>
-                        {chatPlan.discount && (
-                            <p className="text-xs text-green-600 dark:text-green-400 font-bold">(Save {chatPlan.discount}%) 🏷️</p>
-                        )}
-                    </div>
+                 <div className="mb-2">
+                    <p className="text-xl">
+                        <span className="font-extrabold text-slate-900 dark:text-slate-100">{chatPlan.messages}</span>
+                        <span className="font-semibold text-slate-600 dark:text-slate-400 ml-1 text-sm">मैसेज</span>
+                    </p>
+                     {chatPlan.discount && (
+                      <p className="text-xs text-green-600 dark:text-green-400 font-bold">(Save {chatPlan.discount}%)</p>
+                    )}
                 </div>
             </div>
             <button
